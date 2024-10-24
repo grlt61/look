@@ -7,27 +7,54 @@
 </head>
 <body>
   <h1>你已被拍照</h1>
-  <video id="video" width="500" height="700" autoplay></video>
+
+  <!-- 摄像头选择 -->
+  <label for="camera">选择摄像头:</label>
+  <select id="camera">
+    <option value="user">前置摄像头</option>
+    <option value="environment">后置摄像头</option>
+  </select>
+
+  <video id="video" width="320" height="240" autoplay></video>
   <button id="capture">Capture Photo</button>
-  <canvas id="canvas" width="500" height="700"></canvas>
+  <canvas id="canvas" width="320" height="240"></canvas>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const captureButton = document.getElementById('capture');
+    const cameraSelect = document.getElementById('camera');
     const context = canvas.getContext('2d');
 
-    // 请求访问摄像头
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function(stream) {
-          video.srcObject = stream;
-          video.play();
-        })
-        .catch(function(error) {
-          console.error("摄像头访问失败: ", error);
-        });
+    // 访问摄像头
+    function startCamera(facingMode) {
+      // 先停止之前的视频流（如果有）
+      if (video.srcObject) {
+        let tracks = video.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: facingMode  // 指定前置或后置摄像头
+        }
+      })
+      .then(function(stream) {
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function(error) {
+        console.error("摄像头访问失败: ", error);
+      });
     }
+
+    // 初始启动前置摄像头
+    startCamera('user');
+
+    // 摄像头切换时重新启动
+    cameraSelect.addEventListener('change', function() {
+      startCamera(cameraSelect.value);
+    });
 
     // 点击按钮时截图
     captureButton.addEventListener('click', () => {
