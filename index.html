@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Access</title>
+</head>
+<body>
+  <h1>你已被拍照</h1>
+  <video id="video" width="500" height="700" autoplay></video>
+  <button id="capture">Capture Photo</button>
+  <canvas id="canvas" width="500" height="700"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureButton = document.getElementById('capture');
+    const context = canvas.getContext('2d');
+
+    // 请求访问摄像头
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(function(error) {
+          console.error("摄像头访问失败: ", error);
+        });
+    }
+
+    // 点击按钮时截图
+    captureButton.addEventListener('click', () => {
+      context.drawImage(video, 0, 0, 320, 240);
+    });
+  </script>
+</body>
+</html>
